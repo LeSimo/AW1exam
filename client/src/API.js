@@ -2,6 +2,8 @@ import Car from './car.js'
 import Rent from './rent.js'
 const baseURL = '/api';
 
+
+
 async function isAuthenticated(){
     let url = '/user';
     const response = await fetch(baseURL+url);
@@ -133,5 +135,6 @@ async function userLogout(){
     })
 }
 
+//API to export
 const API = {isAuthenticated,getBrands,getCars,getCategories,getRents,addRent,deleteRent,userLogin,userLogout};
 export default API;
