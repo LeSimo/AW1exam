@@ -1,5 +1,5 @@
-import Car from './car.js'
-import Rent from './rent.js'
+import Car from './car'
+import Rent from './rent'
 const baseURL = '/api';
 
 
