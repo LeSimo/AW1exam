@@ -20,18 +20,19 @@ async function getCars(){
     let url = '/cars';
     const response = await fetch(baseURL+url);
     const carsJson = await response.json();
-    if(response.ok){
+    
         return carsJson.map((c) => new Car(c.id,c.model,c.brand,c.category,c.plate));
-    }
+    
 }
 
 async function getBrands(){
     let url = '/brands';
     const response = await fetch(baseURL+url);
-    const brandsJson = await response.json();
-    if(response.ok){
+    const brandsJson = await response;
+    console.log(brandsJson)
+    
         return brandsJson.map((b) => b.brand) 
-    }
+    
 }
 
 
@@ -39,9 +40,9 @@ async function getCategories(){
     let url = '/categories';
     const response = await fetch(baseURL+url);
     const categoriesJson = await response.json();
-    if(response.ok){
+   
         return categoriesJson.map((c) => c.category);
-    }
+    
 }
 
 

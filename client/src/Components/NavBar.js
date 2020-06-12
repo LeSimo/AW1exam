@@ -39,14 +39,14 @@ class NavBar extends React.Component {
 
     render(){
         return <>
-            <Container>
+            
                 <Navbar bg="primary" variant="dark" fixed="top" expand="lg">
                 <Navbar.Brand href="#home">Noleggio Veicoli</Navbar.Brand>
                 <Nav className="mr-auto">
                 </Nav>
                 <LoadingButton/>
                 </Navbar>
-            </Container>
+           
         </>
     }
 
