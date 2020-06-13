@@ -8,6 +8,7 @@ import API from './API/API'
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import NavBar from './Components/NavBar'
 import SideBar from './Components/SideBar'
+import CarList from './Components/CarList'
 import { AuthContext } from './auth/AuthContext'
 import { Row, Col, Container, Navbar } from 'react-bootstrap'
 
@@ -249,6 +250,7 @@ class App extends React.Component {
       this.setState({ loading: true })
       this.loadIniatialData();
       this.setState({ loading: false });
+      
     }
 
   }
@@ -277,10 +279,11 @@ class App extends React.Component {
 
 
 
+
   render() {
     return <>
       <Router>
-        <Container fluid>
+        
           <Switch>
           <Route path='/cars' render={(props) =>{
               if (this.state.isLogged)
@@ -288,10 +291,16 @@ class App extends React.Component {
               else{
                 return<>
                 <NavBar />
+                <Container fluid>
+                <Row>
                 <SideBar brands={this.state.brands} categories={this.state.categories}
                 brandsFilters={this.state.brandsFilters} categoriesFilters={this.state.categoriesFilters}
                 addOrRemoveBrandsFilters = {this.addOrRemoveBrandsFilters} addOrRemoveCategoriesFilters = {this.addOrRemoveCategoriesFilters} />
+                <CarList cars={this.state.cars} brandsFilters={this.state.brandsFilters} categoriesFilters={this.state.categoriesFilters}/>
+                </Row>
+                </Container>
                 </>
+                
               }
             }} />
             <Route path='/' render={(props) => {
@@ -306,7 +315,7 @@ class App extends React.Component {
             
           </Switch>
 
-        </Container>
+        
       </Router>
 
     </>
