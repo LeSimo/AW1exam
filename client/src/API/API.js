@@ -1,5 +1,6 @@
-import Car from './car'
-import Rent from './rent'
+
+const Rent = require('./rent')
+const Car = require('./car')
 const baseURL = '/api';
 
 
@@ -20,6 +21,8 @@ async function getCars(){
     let url = '/cars';
     const response = await fetch(baseURL+url);
     const carsJson = await response.json();
+    console.log('Ecco le car che mi arrivano')
+    console.log(carsJson)
     
         return carsJson.map((c) => new Car(c.id,c.model,c.brand,c.category,c.plate));
     
@@ -27,9 +30,9 @@ async function getCars(){
 
 async function getBrands(){
     let url = '/brands';
-    const response = await fetch(baseURL+url);
-    const brandsJson = await response;
-    console.log(brandsJson)
+    const response = await fetch(baseURL + url);
+    const brandsJson = await response.json();
+   //console.log(brandsJson);
     
         return brandsJson.map((b) => b.brand) 
     

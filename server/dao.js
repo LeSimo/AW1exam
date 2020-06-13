@@ -1,5 +1,7 @@
 'use strict';
 
+const Car = require('./car')
+
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 
@@ -19,7 +21,7 @@ exports.listCars = function () {
         reject(err);
         return ;
       }
-      const cars = rows.map((c) => ({id:c.id, model:c.model, brand:c.brand,category:c.category}));
+      const cars = rows.map((c) => {return new Car(c.id,c.model,c.brand,c.category,c.plate)} );
       resolve(cars);
     })
   })

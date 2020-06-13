@@ -21,3 +21,5 @@ class Rent {
         return t;
     }
 }
+
+module.exports = Rent

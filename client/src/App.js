@@ -9,9 +9,9 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import NavBar from './Components/NavBar'
 import SideBar from './Components/SideBar'
 import { AuthContext } from './auth/AuthContext'
-import { Row, Col, Container } from 'react-bootstrap'
+import { Row, Col, Container, Navbar } from 'react-bootstrap'
 
-
+/*
 function App(props) {
   const [cars, setCars] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -20,11 +20,6 @@ function App(props) {
   const [loginStatus, setLoginStatus] = useState({ isLoggedIn: false, loginError: false, username: '', userId: '' });
   const [rents, setRents] = useState([]);
   const [funziona,setFunziona] = useState(false);
-
-
-
-
-
 
   // Need to start with loading: false to check if user already is logged in
   const [loading, setLoading] = useState(false);
@@ -51,11 +46,12 @@ function App(props) {
   const loadInitialData = () => {
     const promises = [API.getCars(), API.getBrands(), API.getCategories()];
     Promise.all(promises).then(
-      ([cars, brands, categories]) => {
+      ([c, b, ca]) => {
         
-        setCars(cars);
-        setBrands(brands);
-        setCategories(categories);    
+        setCars(c);
+        setBrands(b);
+        setCategories(ca);   
+        setLoading(false); 
       }
     ).catch(
       (errorObj) => {
@@ -95,9 +91,13 @@ function App(props) {
         }
       })
     } else {
+      setLoading(true)
       loadInitialData();
+      
+      console.log(brands)
+     
     }
-  }, );
+  },[brands,cars,categories] );
 
   const cancelErrorMsg = () => {
     setErrorMsg('');
@@ -168,6 +168,150 @@ function App(props) {
 
     </Router>
   );
+}
+
+
+*/
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { brands: [], cars: [], categories: [], rents: [], isLogged: false, 
+      loading: false, errorMsg: '', brandsFilters: [], categoriesFilters: [] };
+  }
+
+  loadIniatialData = () => {
+    API.getBrands().then(
+      (b) => {
+        this.setState({ brands: b })
+
+      })
+
+    API.getCars().then(
+      (c) => {
+        this.setState({ cars: c })
+
+      })
+    API.getCategories().then(
+      (c) => {
+        this.setState({ categories: c })
+      })
+  }
+
+  handleErrors(err) {
+    if (err) {
+      if (err.status && err.status === 401) {
+        this.setState({ authErr: err.errorObj });
+        this.props.history.push("/cars");
+      }
+    }
+  }
+
+
+  // Add a logout method
+  logout = () => {
+    this.setState({ isLogged: true })
+    API.userLogout().then(() => {
+      this.setState({ authUser: null, authErr: null, isLogged: false, rents: [] });
+      API.getCars().catch((errorObj) => { this.handleErrors(errorObj) });
+    });
+    this.setState({ isLogged: false })
+
+  }
+
+  login = (username, password) => {
+    this.setState({ isLogged: true })
+    API.userLogin(username, password).then(
+      (user) => {
+        API.getRents()
+          .then((rents) => {
+            this.setState({ rents: rents, authUser: user, authErr: null, isLogged: true });
+            this.props.history.push("/cars"); //=> Rimanda al configuratore
+          })
+          .catch((errorObj) => {
+            this.handleErrors(errorObj);
+          });
+      }
+    ).catch(
+      (errorObj) => {
+        const err0 = errorObj.errors[0];
+        this.setState({ authErr: err0 });
+      }
+    );
+    this.setState({ isLogged: false })
+  }
+
+  componentDidMount() {
+    if (this.state.isLogged) {
+
+    } else {
+      this.setState({ loading: true })
+      this.loadIniatialData();
+      this.setState({ loading: false });
+    }
+
+  }
+
+    addOrRemoveBrandsFilters = (brand) =>{
+    let brandsFilters = this.state.brandsFilters;
+    if(brandsFilters.includes(brand)){
+      brandsFilters=brandsFilters.filter((b) => b!== brand)
+    }
+    else{
+      brandsFilters.push(brand);
+    }
+    this.setState({brandsFilters:brandsFilters})
+  }
+
+  addOrRemoveCategoriesFilters = (category) =>{
+    let categoriesFilters = this.state.categoriesFilters;
+    if(categoriesFilters.includes(category)){
+      categoriesFilters=categoriesFilters.filter((c) => c!== category)
+    }
+    else{
+      categoriesFilters.push(category);
+    }
+    this.setState({categoriesFilters:categoriesFilters})
+  }
+
+
+
+  render() {
+    return <>
+      <Router>
+        <Container fluid>
+          <Switch>
+          <Route path='/cars' render={(props) =>{
+              if (this.state.isLogged)
+                return <Redirect to='/configurator' />;
+              else{
+                return<>
+                <NavBar />
+                <SideBar brands={this.state.brands} categories={this.state.categories}
+                brandsFilters={this.state.brandsFilters} categoriesFilters={this.state.categoriesFilters}
+                addOrRemoveBrandsFilters = {this.addOrRemoveBrandsFilters} addOrRemoveCategoriesFilters = {this.addOrRemoveCategoriesFilters} />
+                </>
+              }
+            }} />
+            <Route path='/' render={(props) => {
+              if (this.state.isLogged)
+                return <Redirect to='/configurator' />;
+              else {
+               return <Redirect to='/cars' />
+              }
+            }}>
+            </Route>
+
+            
+          </Switch>
+
+        </Container>
+      </Router>
+
+    </>
+  }
+
 }
 
 export default App;
