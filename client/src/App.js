@@ -55,12 +55,12 @@ class App extends React.Component {
 
   // Add a logout method
   logout = () => {
-    this.setState({ isLogged: true })
+    this.setState({ isLogged: false })
     API.userLogout().then(() => {
       this.setState({ authUser: null, authErr: null, isLogged: false, rents: [] });
       API.getCars().catch((errorObj) => { this.handleErrors(errorObj) });
     });
-    this.setState({ isLogged: false })
+    //this.setState({ isLogged: false })
 
   }
 
@@ -72,8 +72,8 @@ class App extends React.Component {
         this.setState({isLogged:true,authUser: user})
         API.getRents()
           .then((rents) => {
-            this.setState({ rents: rents, authUser: user, authErr: null, isLogged: true });
-            //this.props.history.push("/configurator"); //=> Rimanda al configuratore
+            this.setState({ rents: rents, authErr: null });
+            this.props.history.push("/"); //=> Rimanda al configuratore
           })
           .catch((errorObj) => {
             this.handleErrors(errorObj);
@@ -91,15 +91,9 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    if (this.state.isLogged) {
-
-    } else {
       this.setState({ loading: true })
       this.loadIniatialData();
       this.setState({ loading: false });
-
-    }
-
   }
 
   addOrRemoveBrandsFilters = (brand) => {
@@ -130,8 +124,8 @@ class App extends React.Component {
   render() {
     return <>
       <Router>
-
-
+         <NavBar isLogged={this.state.isLogged} authUser={this.state.authUser}
+                  logoutMethod={this.logout} />
 
         <Switch>
           <Route path='/cars' render={(props) => {
@@ -139,8 +133,7 @@ class App extends React.Component {
               return <Redirect to='/configurator' />;
             else {
               return <>
-                <NavBar isLogged={this.state.isLogged} authUser={this.state.authUser}
-                  logoutMethod={this.logout} />
+               
                 <Container fluid>
                   <Row>
                     <SideBar brands={this.state.brands} categories={this.state.categories}
@@ -166,6 +159,13 @@ class App extends React.Component {
 
           }}>
           </Route>
+          
+
+          <Route path='/configurator' render={(props) =>{
+            return <>
+           
+            </>
+          }} />
 
 
 

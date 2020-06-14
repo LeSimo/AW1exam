@@ -41,7 +41,7 @@ class LoginForm extends React.Component {
                         <Col>
                             <h2>
                                 <div className="content">
-                                    Log-in to your account
+                                    Log-in to your Rent's Account
                                 </div>
                             </h2>
 
@@ -56,8 +56,8 @@ class LoginForm extends React.Component {
                                     <Form.Control type="password" name="password" placeholder="Password" value={this.state.password} onChange={(ev) => this.onChangePassword(ev)} required />
                                 </Form.Group>
 
-                                <Button variant="primary" type="submit">Login</Button>
-                                <Nav.Link as = {NavLink} href= "/cars">Cancel</Nav.Link>
+                                <Button variant="outline-primary" type="submit">Login</Button>
+                                <Button variant="outline-primary"><Link  to= "/cars">Cancel</Link></Button>
 
                             </Form>
 
