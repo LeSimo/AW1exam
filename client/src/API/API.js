@@ -20,10 +20,7 @@ async function isAuthenticated(){
 async function getCars(){
     let url = '/cars';
     const response = await fetch(baseURL+url);
-    const carsJson = await response.json();
-    console.log('Ecco le car che mi arrivano')
-    console.log(carsJson)
-    
+    const carsJson = await response.json();  
         return carsJson.map((c) => new Car(c.id,c.model,c.brand,c.category,c.plate));
     
 }
@@ -31,9 +28,7 @@ async function getCars(){
 async function getBrands(){
     let url = '/brands';
     const response = await fetch(baseURL + url);
-    const brandsJson = await response.json();
-   //console.log(brandsJson);
-    
+    const brandsJson = await response.json();  
         return brandsJson.map((b) => b.brand) 
     
 }
@@ -43,14 +38,13 @@ async function getCategories(){
     let url = '/categories';
     const response = await fetch(baseURL+url);
     const categoriesJson = await response.json();
-   
         return categoriesJson.map((c) => c.category);
     
 }
 
 
-async function getRents(user){
-    let url = '/rents/'+user.id;
+async function getRents(userID){
+    let url = '/rents/'+userID;
     const response = await fetch(baseURL+url);
     const rentsJson = await response.json();
     if(response.ok){

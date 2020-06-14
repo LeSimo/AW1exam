@@ -70,10 +70,10 @@ class App extends React.Component {
     API.userLogin(username, password).then(
       (user) => {
         this.setState({isLogged:true,authUser: user})
-        API.getRents()
+        API.getRents(this.state.authUser.userID)
           .then((rents) => {
             this.setState({ rents: rents, authErr: null });
-            this.props.history.push("/"); //=> Rimanda al configuratore
+            //this.props.history.push("/"); //=> DA ELIMINARE
           })
           .catch((errorObj) => {
             this.handleErrors(errorObj);
