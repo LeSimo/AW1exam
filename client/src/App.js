@@ -9,8 +9,189 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import NavBar from './Components/NavBar'
 import SideBar from './Components/SideBar'
 import CarList from './Components/CarList'
+import LoginForm from './Components/LoginForm'
 import { AuthContext } from './auth/AuthContext'
 import { Row, Col, Container, Navbar } from 'react-bootstrap'
+
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      brands: [], cars: [], categories: [], rents: [], isLogged: false,
+      loading: false, errorMsg: '', brandsFilters: [], categoriesFilters: [],
+      authUser:'',authErr:''
+    };
+  }
+
+  loadIniatialData = () => {
+    API.getBrands().then(
+      (b) => {
+        this.setState({ brands: b })
+
+      })
+
+    API.getCars().then(
+      (c) => {
+        this.setState({ cars: c })
+
+      })
+    API.getCategories().then(
+      (c) => {
+        this.setState({ categories: c })
+      })
+  }
+
+  handleErrors(err) {
+    if (err) {
+      if (err.status && err.status === 401) {
+        this.setState({ authErr: err.errorObj });
+        this.props.history.push("/cars");
+      }
+    }
+  }
+
+
+  // Add a logout method
+  logout = () => {
+    this.setState({ isLogged: true })
+    API.userLogout().then(() => {
+      this.setState({ authUser: null, authErr: null, isLogged: false, rents: [] });
+      API.getCars().catch((errorObj) => { this.handleErrors(errorObj) });
+    });
+    this.setState({ isLogged: false })
+
+  }
+
+
+  // Login method
+  login = (username, password) => {
+    API.userLogin(username, password).then(
+      (user) => {
+        this.setState({isLogged:true,authUser: user})
+        API.getRents()
+          .then((rents) => {
+            this.setState({ rents: rents, authUser: user, authErr: null, isLogged: true });
+            //this.props.history.push("/configurator"); //=> Rimanda al configuratore
+          })
+          .catch((errorObj) => {
+            this.handleErrors(errorObj);
+            
+          });
+      }
+    ).catch(
+      (errorObj) => {
+        const err0 = errorObj.errors[0];
+        this.setState({ authErr: err0 });
+        this.props.history.push("/configurator")
+      }
+    );
+
+  }
+
+  componentDidMount() {
+    if (this.state.isLogged) {
+
+    } else {
+      this.setState({ loading: true })
+      this.loadIniatialData();
+      this.setState({ loading: false });
+
+    }
+
+  }
+
+  addOrRemoveBrandsFilters = (brand) => {
+    let brandsFilters = this.state.brandsFilters;
+    if (brandsFilters.includes(brand)) {
+      brandsFilters = brandsFilters.filter((b) => b !== brand)
+    }
+    else {
+      brandsFilters.push(brand);
+    }
+    this.setState({ brandsFilters: brandsFilters })
+  }
+
+  addOrRemoveCategoriesFilters = (category) => {
+    let categoriesFilters = this.state.categoriesFilters;
+    if (categoriesFilters.includes(category)) {
+      categoriesFilters = categoriesFilters.filter((c) => c !== category)
+    }
+    else {
+      categoriesFilters.push(category);
+    }
+    this.setState({ categoriesFilters: categoriesFilters })
+  }
+
+
+
+
+  render() {
+    return <>
+      <Router>
+
+
+
+        <Switch>
+          <Route path='/cars' render={(props) => {
+            if (this.state.isLogged)
+              return <Redirect to='/configurator' />;
+            else {
+              return <>
+                <NavBar isLogged={this.state.isLogged} authUser={this.state.authUser}
+                  logoutMethod={this.logout} />
+                <Container fluid>
+                  <Row>
+                    <SideBar brands={this.state.brands} categories={this.state.categories}
+                      brandsFilters={this.state.brandsFilters} categoriesFilters={this.state.categoriesFilters}
+                      addOrRemoveBrandsFilters={this.addOrRemoveBrandsFilters} addOrRemoveCategoriesFilters={this.addOrRemoveCategoriesFilters} />
+                    <CarList cars={this.state.cars} brandsFilters={this.state.brandsFilters} categoriesFilters={this.state.categoriesFilters} />
+                  </Row>
+                </Container>
+              </>
+
+            }
+          }} />
+
+          <Route path='/login' render={(props) => {
+            return <>
+              <Row className="vheight-100">
+                <Col md={4}></Col>
+                <Col md={4} className="below-nav">
+                  <LoginForm loginMethod={this.login} authErr={this.state.authErr} isLogged={this.state.isLogged}/>
+                </Col>
+              </Row>
+            </>
+
+          }}>
+          </Route>
+
+
+
+          <Route path='/' render={(props) => {
+            if (this.state.isLogged)
+              return <Redirect to='/configurator' />;
+            else {
+              return <Redirect to='/cars' />
+            }
+          }}>
+          </Route>
+
+
+        </Switch>
+
+
+      </Router>
+
+    </>
+  }
+
+}
+
+export default App;
+
+
 
 /*
 function App(props) {
@@ -48,11 +229,11 @@ function App(props) {
     const promises = [API.getCars(), API.getBrands(), API.getCategories()];
     Promise.all(promises).then(
       ([c, b, ca]) => {
-        
+
         setCars(c);
         setBrands(b);
-        setCategories(ca);   
-        setLoading(false); 
+        setCategories(ca);
+        setLoading(false);
       }
     ).catch(
       (errorObj) => {
@@ -75,7 +256,7 @@ function App(props) {
 
 
   // if user is not logged retrieve the public data (default)
-  // if user is logged retrieve the private and public data 
+  // if user is logged retrieve the private and public data
   useEffect(() => {
     if (loginStatus.isLoggedIn) {
       API.isAuthenticated().then((userInfo) => {
@@ -94,9 +275,9 @@ function App(props) {
     } else {
       setLoading(true)
       loadInitialData();
-      
+
       console.log(brands)
-     
+
     }
   },[brands,cars,categories] );
 
@@ -144,13 +325,13 @@ function App(props) {
       <Switch>
         <Route path='/' render={(props) => {
           if (loginStatus.isLoggedIn)
-            return <Redirect to='/' />  // da reindirizzare alla pagina del configuratore 
+            return <Redirect to='/' />  // da reindirizzare alla pagina del configuratore
           else
             return <>
               <Redirect to='/cars' />
               <Container fluid>
                 <NavBar />
-                
+
                 <Row className="vheight-100">
                   <Col sm={4} className="below-nav">
                     <h5><strong>Public Tasks</strong></h5>
@@ -173,154 +354,3 @@ function App(props) {
 
 
 */
-
-class App extends React.Component {
-
-  constructor(props) {
-    super(props);
-    this.state = { brands: [], cars: [], categories: [], rents: [], isLogged: false, 
-      loading: false, errorMsg: '', brandsFilters: [], categoriesFilters: [] };
-  }
-
-  loadIniatialData = () => {
-    API.getBrands().then(
-      (b) => {
-        this.setState({ brands: b })
-
-      })
-
-    API.getCars().then(
-      (c) => {
-        this.setState({ cars: c })
-
-      })
-    API.getCategories().then(
-      (c) => {
-        this.setState({ categories: c })
-      })
-  }
-
-  handleErrors(err) {
-    if (err) {
-      if (err.status && err.status === 401) {
-        this.setState({ authErr: err.errorObj });
-        this.props.history.push("/cars");
-      }
-    }
-  }
-
-
-  // Add a logout method
-  logout = () => {
-    this.setState({ isLogged: true })
-    API.userLogout().then(() => {
-      this.setState({ authUser: null, authErr: null, isLogged: false, rents: [] });
-      API.getCars().catch((errorObj) => { this.handleErrors(errorObj) });
-    });
-    this.setState({ isLogged: false })
-
-  }
-
-  login = (username, password) => {
-    this.setState({ isLogged: true })
-    API.userLogin(username, password).then(
-      (user) => {
-        API.getRents()
-          .then((rents) => {
-            this.setState({ rents: rents, authUser: user, authErr: null, isLogged: true });
-            this.props.history.push("/cars"); //=> Rimanda al configuratore
-          })
-          .catch((errorObj) => {
-            this.handleErrors(errorObj);
-          });
-      }
-    ).catch(
-      (errorObj) => {
-        const err0 = errorObj.errors[0];
-        this.setState({ authErr: err0 });
-      }
-    );
-    this.setState({ isLogged: false })
-  }
-
-  componentDidMount() {
-    if (this.state.isLogged) {
-
-    } else {
-      this.setState({ loading: true })
-      this.loadIniatialData();
-      this.setState({ loading: false });
-      
-    }
-
-  }
-
-    addOrRemoveBrandsFilters = (brand) =>{
-    let brandsFilters = this.state.brandsFilters;
-    if(brandsFilters.includes(brand)){
-      brandsFilters=brandsFilters.filter((b) => b!== brand)
-    }
-    else{
-      brandsFilters.push(brand);
-    }
-    this.setState({brandsFilters:brandsFilters})
-  }
-
-  addOrRemoveCategoriesFilters = (category) =>{
-    let categoriesFilters = this.state.categoriesFilters;
-    if(categoriesFilters.includes(category)){
-      categoriesFilters=categoriesFilters.filter((c) => c!== category)
-    }
-    else{
-      categoriesFilters.push(category);
-    }
-    this.setState({categoriesFilters:categoriesFilters})
-  }
-
-
-
-
-  render() {
-    return <>
-      <Router>
-        
-          <Switch>
-          <Route path='/cars' render={(props) =>{
-              if (this.state.isLogged)
-                return <Redirect to='/configurator' />;
-              else{
-                return<>
-                <NavBar />
-                <Container fluid>
-                <Row>
-                <SideBar brands={this.state.brands} categories={this.state.categories}
-                brandsFilters={this.state.brandsFilters} categoriesFilters={this.state.categoriesFilters}
-                addOrRemoveBrandsFilters = {this.addOrRemoveBrandsFilters} addOrRemoveCategoriesFilters = {this.addOrRemoveCategoriesFilters} />
-                <CarList cars={this.state.cars} brandsFilters={this.state.brandsFilters} categoriesFilters={this.state.categoriesFilters}/>
-                </Row>
-                </Container>
-                </>
-                
-              }
-            }} />
-            <Route path='/' render={(props) => {
-              if (this.state.isLogged)
-                return <Redirect to='/configurator' />;
-              else {
-               return <Redirect to='/cars' />
-              }
-            }}>
-            </Route>
-
-            
-          </Switch>
-
-        
-      </Router>
-
-    </>
-  }
-
-}
-
-export default App;

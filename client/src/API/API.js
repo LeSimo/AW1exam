@@ -100,7 +100,7 @@ async function addRent(rent){
 
 async function userLogin(username,password){
     return new Promise ((resolve,reject) => {
-        fetch(baseURL+'/login',{
+        fetch(baseURL + '/login',{
             method: 'POST',
             headers: {
                 'Content-Type' : 'application/json',

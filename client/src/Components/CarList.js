@@ -25,7 +25,7 @@ function CarRow(props) {
     )
 }
 
-
+// Function for filter cars
 function CarList(props) {
     const brandsFilters = props.brandsFilters;
     const categoriesFilters = props.categoriesFilters

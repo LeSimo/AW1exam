@@ -31,14 +31,12 @@ const expireTime = 300; //seconds
 app.post('/api/login',(req,res) => {
   const name = req.body.username;
   const password = req.body.password;
-  console.log('Ho ricevuto user: '+name+' pass: '+password)
   dao.checkUserPass(name,password)
   .then((userObj) => {
-    console.log('sono nel then')
     const token = jsonwebtoken.sign({userID: userObj.userID},jwtSecret,{expiresIn:expireTime});
     res.cookie('token',token,{httpOnly:true, sameSite: true, maxAge:1000*expireTime});
     res.json(userObj);
-    console.log('User'+ name +' logged')
+    console.log('User '+ name +' logged')
   }).catch(
     // Delay response when wrong user/pass is sent to avoid fast guessing attempts
     (test) => new Promise((resolve) => {
@@ -88,12 +86,12 @@ app.get('/api/categories',(req,res) => {
 
 
 // For the rest of the code, all APIs require authentication
-/*app.use(
+app.use(
   jwt({
     secret: jwtSecret,
     getToken: req => req.cookies.token
   })
-);*/
+);
 
 // To return a better object in case of errors
 app.use(function (err, req, res, next) {
