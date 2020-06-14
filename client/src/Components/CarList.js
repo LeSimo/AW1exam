@@ -59,7 +59,7 @@ function CarList(props) {
                     </tr>
                 </thead>
                 <tbody>
-                {cars.map((car) => <CarRow key={car} car={car} />)}
+                {cars.map((car) => <CarRow key={car.plate} car={car} />)}
                 </tbody>
             </Table>
         </Col>
