@@ -42,6 +42,14 @@ async function getCategories(){
     
 }
 
+async function getCarById(carId){
+    let url = '/cars/'+carId;
+    const response = await fetch(baseURL+url);
+    const carJson = await response.json();
+    if(response.ok)
+        return carJson;
+}
+
 
 async function getRents(userID){
     let url = '/rents/'+userID;

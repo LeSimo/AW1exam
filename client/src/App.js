@@ -10,6 +10,7 @@ import NavBar from './Components/NavBar'
 import SideBar from './Components/SideBar'
 import CarList from './Components/CarList'
 import LoginForm from './Components/LoginForm'
+import RentsList from './Components/RentsList'
 import { AuthContext } from './auth/AuthContext'
 import { Row, Col, Container, Navbar } from 'react-bootstrap'
 
@@ -21,7 +22,7 @@ class App extends React.Component {
     this.state = {
       brands: [], cars: [], categories: [], rents: [], isLogged: false,
       loading: false, errorMsg: '', brandsFilters: [], categoriesFilters: [],
-      authUser:'',authErr:''
+      authUser: '', authErr: ''
     };
   }
 
@@ -47,7 +48,7 @@ class App extends React.Component {
     if (err) {
       if (err.status && err.status === 401) {
         this.setState({ authErr: err.errorObj });
-        this.props.history.push("/cars");
+        //this.props.history.push("/cars");
       }
     }
   }
@@ -69,7 +70,7 @@ class App extends React.Component {
   login = (username, password) => {
     API.userLogin(username, password).then(
       (user) => {
-        this.setState({isLogged:true,authUser: user})
+        this.setState({ isLogged: true, authUser: user })
         API.getRents(this.state.authUser.userID)
           .then((rents) => {
             this.setState({ rents: rents, authErr: null });
@@ -77,7 +78,7 @@ class App extends React.Component {
           })
           .catch((errorObj) => {
             this.handleErrors(errorObj);
-            
+
           });
       }
     ).catch(
@@ -90,10 +91,22 @@ class App extends React.Component {
 
   }
 
+
+  deleteRent = (invoice) => {
+    API.deleteRent(invoice).then(() => {
+      API.getRents(this.state.authUser.userID)
+        .then((rents) => {
+          this.setState({ rents: rents, authErr: null });
+        })
+    }).catch((errorObj) => {
+      this.handleErrors(errorObj)
+    })
+  }
+
   componentDidMount() {
-      this.setState({ loading: true })
-      this.loadIniatialData();
-      this.setState({ loading: false });
+    this.setState({ loading: true })
+    this.loadIniatialData();
+    this.setState({ loading: false });
   }
 
   addOrRemoveBrandsFilters = (brand) => {
@@ -124,8 +137,8 @@ class App extends React.Component {
   render() {
     return <>
       <Router>
-         <NavBar isLogged={this.state.isLogged} authUser={this.state.authUser}
-                  logoutMethod={this.logout} />
+        <NavBar isLogged={this.state.isLogged} authUser={this.state.authUser}
+          logoutMethod={this.logout} />
 
         <Switch>
           <Route path='/cars' render={(props) => {
@@ -133,7 +146,7 @@ class App extends React.Component {
               return <Redirect to='/configurator' />;
             else {
               return <>
-               
+
                 <Container fluid>
                   <Row>
                     <SideBar brands={this.state.brands} categories={this.state.categories}
@@ -152,18 +165,34 @@ class App extends React.Component {
               <Row className="vheight-100">
                 <Col md={4}></Col>
                 <Col md={4} className="below-nav">
-                  <LoginForm loginMethod={this.login} authErr={this.state.authErr} isLogged={this.state.isLogged}/>
+                  <LoginForm loginMethod={this.login} authErr={this.state.authErr} isLogged={this.state.isLogged} />
                 </Col>
               </Row>
             </>
 
           }}>
           </Route>
-          
 
-          <Route path='/configurator' render={(props) =>{
+          <Route path="/rents" render={(props) => {
+            if (!this.state.isLogged) {
+              return <Redirect to="/cars" />
+            } else {
+              return <>
+                <Container fluid>
+                  <Row>
+                    <RentsList rents={this.state.rents} deleteRent={this.deleteRent} cars={this.state.cars}/>
+                  </Row>
+                </Container>
+              </>
+            }
+          }}>
+
+          </Route>
+
+
+          <Route path='/configurator' render={(props) => {
             return <>
-           
+              Qui ci va il form di configurazione
             </>
           }} />
 

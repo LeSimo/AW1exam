@@ -17,7 +17,10 @@ function NavBar(props) {
       <Navbar.Brand href="#home">Noleggio Veicoli</Navbar.Brand>
       <Nav className="mr-auto">
         {props.isLogged && <>
-          <Navbar.Brand>Welcome {props.authUser.name}</Navbar.Brand>
+          <Navbar.Brand><Button variant="primary" disabled >Welcome {props.authUser.name}</Button></Navbar.Brand>
+          <Navbar.Brand>
+            <Link to="/rents"><Button variant="primary" >I miei Noleggi</Button></Link>
+          </Navbar.Brand>
 
         </>
         }
