@@ -192,9 +192,13 @@ class App extends React.Component {
 
 
           <Route path='/configurator' render={(props) => {
+            if (!this.state.isLogged) {
+              return <Redirect to="/cars" />
+            } else {
             return <>
               <Configurator categories={this.state.categories}/>
             </>
+            }
           }} />
 
 

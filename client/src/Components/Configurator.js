@@ -15,7 +15,7 @@ function CategoryOption(props){
 class Configurator extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { StartDate: '', EndDate: '', category: '', ageType: '', additionalDriver: false, extraInsurance: false, kmType: '', submitted: false }
+        this.state = { StartDate: '', EndDate: '', category: '', ageType: '', additionalDriver: '', extraInsurance: false, kmType: '', submitted: false }
     }
 
     updateField = (name, value) => {
@@ -58,13 +58,13 @@ class Configurator extends React.Component {
                         <Row>
                             <Col>
                                 <Form.Label>Car's Category</Form.Label>
-                                <Form.Control as="select">
-                                    {this.props.categories.map((cat) => <CategoryOption category={cat} />)}
+                                <Form.Control as="select" name="category" value={this.state.category} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
+                                    {this.props.categories.map((cat) => <CategoryOption key={cat} category={cat} />)}
                                 </Form.Control>
                             </Col>
                             <Col>
                             <Form.Label>Driver's Age</Form.Label>
-                                <Form.Control as="select">
+                                <Form.Control as="select" name="ageType" value={this.state.ageType} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
                                     <option>less than 25</option>
                                     <option>less than 65</option>
                                     <option>more than 65</option>
@@ -76,7 +76,7 @@ class Configurator extends React.Component {
                         <Row>
                             <Col>
                             <Form.Label>Additional Drivers</Form.Label>
-                                <Form.Control as="select">
+                                <Form.Control as="select" name="additionalDriver" value={this.state.additionalDriver} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -86,7 +86,7 @@ class Configurator extends React.Component {
                             </Col>
                             <Col>
                             <Form.Label>Km per day</Form.Label>
-                                <Form.Control as="select">
+                                <Form.Control as="select" name="kmType" value={this.state.kmType} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
                                     <option>less than 50 km/day</option>
                                     <option>less than 150 km/day</option>
                                     <option>unlimited</option>
@@ -96,7 +96,7 @@ class Configurator extends React.Component {
                         </Form.Group>
                         <Form.Group>
                         <Col xs="auto">
-                                <Form.Check type="checkbox" label="Additional insurance?"></Form.Check>
+                                <Form.Check type="checkbox" name="extraInsurance" label="Additional insurance?" value={this.state.extraInsurance} onChange={(ev) => this.updateField(ev.target.name, ev.target.checked)}/>
                             </Col>
                             </Form.Group>
                         <Button variant="primary" type="submit">Submit</Button>
