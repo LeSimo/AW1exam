@@ -11,6 +11,7 @@ import SideBar from './Components/SideBar'
 import CarList from './Components/CarList'
 import LoginForm from './Components/LoginForm'
 import RentsList from './Components/RentsList'
+import Configurator from './Components/Configurator'
 import { AuthContext } from './auth/AuthContext'
 import { Row, Col, Container, Navbar } from 'react-bootstrap'
 
@@ -192,7 +193,7 @@ class App extends React.Component {
 
           <Route path='/configurator' render={(props) => {
             return <>
-              Qui ci va il form di configurazione
+              <Configurator categories={this.state.categories}/>
             </>
           }} />
 

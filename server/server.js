@@ -153,7 +153,7 @@ app.delete('/api/rents/:invoice',(req, res) => {
 
 
 // POST /rents
-// Request body: object describing an Rent (CarId,UserId,cost,StartDate,EndDate,invoice)
+// Request body: object describing an Rent (CarId,UserId,cost,StartDate,EndDate)
 // Response body: empty 
 app.post('/api/rents',(req,res) =>{
   //la validazione è fatta lato client
@@ -169,8 +169,26 @@ app.post('/api/rents',(req,res) =>{
   .catch((err) => res.status(503).json(dbErrorObj));
 })
 
+app.post('/api/available',(req,res) =>{
+  const StartDate = req.body.StartDate;
+  const EndDate = req.body.EndDate;
+  dao.availableCars(StartDate,EndDate)
+  .then((result) => res.json(result))
+  .catch((err) => res.status(503).json(dbErrorObj))
+})
 
+/* FILTRO SUL CLIENT
+app.post('/api/availablev2',(req,res) =>{
+  const category = req.body.category;
+  const StartDate = req.body.StartDate;
+  const EndDate = req.body.EndDate;
+  console.log(typeof category)
+  dao.availableCarsV2(category,StartDate,EndDate)
+  .then((result) => res.json(result))
+  .catch((err) => res.status(503).json(dbErrorObj))
+})
 
+*/
 
 
 

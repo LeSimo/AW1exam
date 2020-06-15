@@ -141,6 +141,29 @@ async function userLogout(){
     })
 }
 
+
+async function availableCars(StartDate,EndDate){
+    return new Promise((resolve,reject) => {
+        fetch(baseURL+'available',{
+            method:'POST',
+            headers: {
+                'Content-Type' : 'application/json',
+            },
+            body: JSON.stringify({StartDate: StartDate, EndDate: EndDate}),
+        }).then((response) => {
+            if(response.ok){
+                response.json().then((carsId) =>{
+                    resolve(carsId)
+                })
+            }else{
+                response.json()
+                .then((obj) => {reject(obj)})       //error message in the response body
+                .catch((err) => {reject({ errors : [{param :"Application", masg:"Cannot parse server response"}] }) });
+            }
+        }).catch((err) => {reject({ errors : [{param: "Server",msg:"Cannot communicate"}] }) });
+    })
+}
+
 //API to export
 const API = {isAuthenticated,getBrands,getCars,getCategories,getRents,addRent,deleteRent,userLogin,userLogout};
 export default API;

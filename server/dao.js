@@ -81,12 +81,8 @@ exports.deleteRent = function (invoice) {
 }
 
 exports.createRent = function (rent) {
-  //console.log(rent.CarId)
-  //rent.startDate = moment(rent.startDate).format("YYYY-MM-DD");
-  //rent.endDate = moment(rent.endDate).format("YYYY-MM-DD");
-
   return new Promise((resolve, reject) => {
-    const sql = "INSERT INTO RENTS(CarId,UserId,cost,StartDate,EndDate) VALUES (?,?,?,DATE(?),DATE(?))";
+    const sql = "INSERT INTO RENTS(CarId,UserId,cost,StartDate,EndDate) VALUES (?,?,?,?,?)";
     //invoice is not needed. It's added by the insert operation
     db.run(sql, [rent.CarId, rent.UserId, rent.cost, rent.StartDate, rent.EndDate], function (err) {
       if (err) {
@@ -209,3 +205,41 @@ exports.loadCategories = function () {
     })
   })
 }
+
+exports.availableCars = function (StartDate,EndDate) {
+ return new Promise((resolve,reject) => {
+   const sql='SELECT id FROM CARS EXCEPT SELECT DISTINCT CarId FROM RENTS  WHERE (? BETWEEN StartDate and EndDate) or (? BETWEEN StartDate and EndDate)'
+   db.all(sql,[StartDate,EndDate],(err,rows) => {
+    if (err) {
+      reject(err);
+      return;
+    }
+    if (rows.length === 0) {            
+      reject(null);
+      return;
+    }
+    const carsId = rows;
+    resolve (carsId);
+   }) 
+ })
+}
+
+
+/* FILTRO SUL CLIENT
+exports.availableCarsV2 = function (category,StartDate,EndDate) {
+  return new Promise((resolve,reject) => {
+    const sql='SELECT id FROM CARS WHERE CARS.category like ? EXCEPT SELECT DISTINCT CarId FROM RENTS  WHERE (? BETWEEN StartDate and EndDate) or (? BETWEEN StartDate and EndDate)'
+    db.all(sql,[categoryStartDate,EndDate],(err,rows) => {
+     if (err) {
+       reject(err);
+       return;
+     }
+     if (rows.length === 0) {            
+       reject(null);
+       return;
+     }
+     const carsId = rows;
+     resolve (carsId);
+    }) 
+  })
+ }  */
