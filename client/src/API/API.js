@@ -144,7 +144,7 @@ async function userLogout(){
 
 async function availableCars(StartDate,EndDate){
     return new Promise((resolve,reject) => {
-        fetch(baseURL+'available',{
+        fetch(baseURL+'/available',{
             method:'POST',
             headers: {
                 'Content-Type' : 'application/json',
@@ -165,5 +165,5 @@ async function availableCars(StartDate,EndDate){
 }
 
 //API to export
-const API = {isAuthenticated,getBrands,getCars,getCategories,getRents,addRent,deleteRent,userLogin,userLogout};
+const API = {isAuthenticated,getBrands,getCars,getCategories,getRents,addRent,deleteRent,userLogin,userLogout,availableCars};
 export default API;

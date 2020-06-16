@@ -2,20 +2,31 @@ import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
-import { Button, ButtonGroup, Navbar, Nav, Form, FormControl, Container, Row, Col, NavItem, Modal, ListGroupItem, Table } from 'react-bootstrap';
+import { Button, ButtonGroup, Navbar, Nav, Form, FormControl, Container, Row, Col, NavItem, Modal, ListGroupItem, Table, Badge } from 'react-bootstrap';
+import API from './../API/API'
 
 
-function CategoryOption(props){
+
+function CategoryOption(props) {
     return <>
-    <option>{props.category}</option>
+        <option>{props.category}</option>
     </>
 }
 
 
+
+
 class Configurator extends React.Component {
+
     constructor(props) {
         super(props);
-        this.state = { StartDate: '', EndDate: '', category: '', ageType: '', additionalDriver: '', extraInsurance: false, kmType: '', submitted: false }
+        this.state = { StartDate: '', EndDate: '', category: '', ageType: "less than 65", additionalDriver: "NO", extraInsurance: false, kmType: "less than 150 km/day", submitted: false, availableCars: [] }
+    }
+
+    updateAvailableCars = (carsId) => {
+        if (JSON.stringify(carsId) !== JSON.stringify(this.state.availableCars)) {
+            this.setState({ availableCars: carsId })
+        }
     }
 
     updateField = (name, value) => {
@@ -28,7 +39,7 @@ class Configurator extends React.Component {
         if (!form.checkValidity()) {
             form.reportValidity();
         } else {
-            //setta i parametri dello stato
+            //
         }
     }
 
@@ -55,57 +66,163 @@ class Configurator extends React.Component {
                             </Row>
                         </Form.Group>
                         <Form.Group>
-                        <Row>
-                            <Col>
-                                <Form.Label>Car's Category</Form.Label>
-                                <Form.Control as="select" name="category" value={this.state.category} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
-                                    {this.props.categories.map((cat) => <CategoryOption key={cat} category={cat} />)}
-                                </Form.Control>
-                            </Col>
-                            <Col>
-                            <Form.Label>Driver's Age</Form.Label>
-                                <Form.Control as="select" name="ageType" value={this.state.ageType} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
-                                    <option>less than 25</option>
-                                    <option>less than 65</option>
-                                    <option>more than 65</option>
-                                </Form.Control>
-                            </Col>
-                        </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Label>Car's Category</Form.Label>
+                                    <Form.Control as="select" name="category" value={this.state.category} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
+                                        <option value=''> </option>
+                                        {this.props.categories.map((cat) => <CategoryOption key={cat} category={cat} />)}
+                                    </Form.Control>
+                                </Col>
+                                <Col>
+                                    <Form.Label>Driver's Age</Form.Label>
+                                    <Form.Control as="select" name="ageType" value={this.state.ageType} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
+                                        <option>less than 25</option>
+                                        <option>less than 65</option>
+                                        <option>more than 65</option>
+                                    </Form.Control>
+                                </Col>
+                            </Row>
                         </Form.Group>
                         <Form.Group>
-                        <Row>
-                            <Col>
-                            <Form.Label>Additional Drivers</Form.Label>
-                                <Form.Control as="select" name="additionalDriver" value={this.state.additionalDriver} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </Form.Control>
-                            </Col>
-                            <Col>
-                            <Form.Label>Km per day</Form.Label>
-                                <Form.Control as="select" name="kmType" value={this.state.kmType} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
-                                    <option>less than 50 km/day</option>
-                                    <option>less than 150 km/day</option>
-                                    <option>unlimited</option>
-                                </Form.Control>
-                            </Col>
-                        </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Label>Additional Drivers</Form.Label>
+                                    <Form.Control as="select" name="additionalDriver" value={this.state.additionalDriver} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
+                                        <option>NO</option>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                    </Form.Control>
+                                </Col>
+                                <Col>
+                                    <Form.Label>Km per day</Form.Label>
+                                    <Form.Control as="select" name="kmType" value={this.state.kmType} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)}>
+                                        <option>less than 50 km/day</option>
+                                        <option>less than 150 km/day</option>
+                                        <option>unlimited</option>
+                                    </Form.Control>
+                                </Col>
+                            </Row>
                         </Form.Group>
                         <Form.Group>
-                        <Col xs="auto">
-                                <Form.Check type="checkbox" name="extraInsurance" label="Additional insurance?" value={this.state.extraInsurance} onChange={(ev) => this.updateField(ev.target.name, ev.target.checked)}/>
+                            <Col xs="auto">
+                                <Form.Check type="checkbox" name="extraInsurance" label="Additional insurance?" value={this.state.extraInsurance} onChange={(ev) => this.updateField(ev.target.name, ev.target.checked)} />
                             </Col>
-                            </Form.Group>
+                        </Form.Group>
                         <Button variant="primary" type="submit">Submit</Button>
 
                     </Form>
+
+                    <h3>Available Cars:  {(!this.state.StartDate || !this.state.EndDate) && <Badge variant="secondary">Insert Data Interval please</Badge>}
+                        {(this.state.StartDate && this.state.EndDate) && <Row>
+                            <GetAvailableCars handleErrors={this.props.handleErrors} updateAvailableCars={this.updateAvailableCars}
+                                StartDate={this.state.StartDate} EndDate={this.state.EndDate} availableCars={this.state.availableCars} category={this.state.category}/>
+                            {(!this.state.category) && <Badge variant="secondary">Insert Category for price</Badge>}
+                        </Row>}
+
+                    </h3>
+
+                    <h3>
+                        {(this.state.StartDate && this.state.EndDate && this.state.category) &&
+                            <PriceCalculator cars={this.props.cars} availableCars={this.state.availableCars} category={this.state.category}
+                                StartDate={this.state.StartDate} EndDate={this.state.EndDate} ageType={this.state.ageType} additionalDriver={this.state.additionalDriver}
+                                extraInsurance={this.state.extraInsurance} kmType={this.state.kmType} rents={this.props.rents}/>}
+                    </h3>
+
                 </Col>
             </Row>
         )
     }
+
+}
+
+function GetAvailableCars(props) {
+    let filtredId;
+    API.availableCars(props.StartDate, props.EndDate)
+        .then((carsId) => { props.updateAvailableCars(carsId) })
+        .catch((errorObj) => {
+            props.handleErrors(errorObj)
+        }) //Condition for filter by category
+    //MUST ADD FILTER FOR CATEGORY
+
+    return <><h3>{<Badge variant="light">{Object.keys(props.availableCars).length}</Badge>}</h3></>
+}
+
+function PriceCalculator(props) {
+    if (Object.keys(props.availableCars).length === 0) {
+        return <> No available cars</>
+    }
+    //return <>Prezzo</>
+    let price = 0;
+    // Choose the car's category
+    switch (props.category) {
+        case "A": price += 80;
+            break;
+        case 'B': price += 70;
+            break;
+        case 'C': price += 60;
+            break;
+        case 'D': price += 50;
+            break;
+        case 'E': price += 40;
+            break;
+    }
+
+    let a = moment(props.EndDate);
+    let b = moment(props.StartDate);
+    let days = a.diff(b,'days');
+    days +=1;
+    // Days of rent
+    price = price * days;
+
+    // Km options
+    let kmOption = 1;
+    if(props.kmType === "less than 50 km/day"){
+        kmOption = 0.95;
+    }
+
+    if(props.kmType === "unlimited"){
+        kmOption = 1.05
+    }
+
+    let driverOption = 1;
+    if(props.ageType === "less than 25"){
+        driverOption = 1.05;
+    }
+    if(props.ageType === "more than 65"){
+        driverOption = 1.1;
+    }
+
+    let additionalDriverOption = 1;
+    if(props.additionalDriver != "NO"){
+        additionalDriverOption = 1.15;
+    }
+
+    let extraInsuranceOption = 1;
+    if(props.extraInsurance){
+        extraInsuranceOption = 1.2;
+    }
+
+    let frequentOption = 1;
+    const pastRents = props.rents.filter((rent) => {
+        if (moment(rent.StartDate).isBefore(moment()))
+            return true
+    })
+
+    if(Object.keys(pastRents).length >= 3){
+        frequentOption = 0.9;
+    }
+
+    //Manca il filtro per il 10 % di veicoli
+
+    let finalPrice = price * kmOption * driverOption * additionalDriverOption * extraInsuranceOption *frequentOption ;
+    return <><h3>{<Badge variant="light">{finalPrice.toFixed(2)} € </Badge>}</h3></>
+
+
+
 
 }
 

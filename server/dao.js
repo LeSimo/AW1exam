@@ -208,8 +208,8 @@ exports.loadCategories = function () {
 
 exports.availableCars = function (StartDate,EndDate) {
  return new Promise((resolve,reject) => {
-   const sql='SELECT id FROM CARS EXCEPT SELECT DISTINCT CarId FROM RENTS  WHERE (? BETWEEN StartDate and EndDate) or (? BETWEEN StartDate and EndDate)'
-   db.all(sql,[StartDate,EndDate],(err,rows) => {
+   const sql='SELECT id FROM CARS EXCEPT SELECT DISTINCT CarId FROM RENTS  WHERE (? BETWEEN StartDate and EndDate) or (? BETWEEN StartDate and EndDate) or (StartDate  BETWEEN ? and ?)  or (EndDate  BETWEEN ? and ?)'
+   db.all(sql,[StartDate,EndDate,StartDate,EndDate,StartDate,EndDate],(err,rows) => {
     if (err) {
       reject(err);
       return;
