@@ -119,7 +119,8 @@ class Configurator extends React.Component {
                     <h3>Available Cars:  {(!this.state.StartDate || !this.state.EndDate) && <Badge variant="secondary">Insert Data Interval please</Badge>}
                         {(this.state.StartDate && this.state.EndDate) && <Row>
                             <GetAvailableCars handleErrors={this.props.handleErrors} updateAvailableCars={this.updateAvailableCars}
-                                StartDate={this.state.StartDate} EndDate={this.state.EndDate} availableCars={this.state.availableCars} category={this.state.category}/>
+                                StartDate={this.state.StartDate} EndDate={this.state.EndDate} availableCars={this.state.availableCars} 
+                                category={this.state.category} cars={this.props.cars}/>
                             {(!this.state.category) && <Badge variant="secondary">Insert Category for price</Badge>}
                         </Row>}
 
@@ -140,15 +141,40 @@ class Configurator extends React.Component {
 }
 
 function GetAvailableCars(props) {
-    let filtredId;
+    let filteredId;
     API.availableCars(props.StartDate, props.EndDate)
         .then((carsId) => { props.updateAvailableCars(carsId) })
         .catch((errorObj) => {
             props.handleErrors(errorObj)
         }) //Condition for filter by category
     //MUST ADD FILTER FOR CATEGORY
+    filteredId = props.availableCars.map((c) => {return c.id})
+    let availableCarsObjects = props.cars.filter((c) => {
+        if(filteredId.includes(c.id))
+            return true
+    })
+   
+    
+    // Se filtro category attivo
+    let filteredCars = [];
+    if(props.category){
+        filteredCars = availableCarsObjects.filter((car) => {
+            if(car.category === props.category){
+                console.log('true')
+                return true
+            }
+        })
 
-    return <><h3>{<Badge variant="light">{Object.keys(props.availableCars).length}</Badge>}</h3></>
+    }
+    
+
+    if(!props.category){
+        return <><h3>{<Badge variant="light">{Object.keys(props.availableCars).length}</Badge>}</h3></>
+    }else{
+        // stampo il numero aggiornato con le categorie
+    return <><h3>{<Badge variant="light">{Object.keys(filteredCars).length} </Badge>}{<Badge variant="secondary">in this category</Badge>}</h3></>
+    }
+
 }
 
 function PriceCalculator(props) {

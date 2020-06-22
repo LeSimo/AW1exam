@@ -19,7 +19,8 @@ function NavBar(props) {
         {props.isLogged && <>
           <Navbar.Brand><Button variant="primary" disabled >Welcome {props.authUser.name}</Button></Navbar.Brand>
           <Navbar.Brand>
-            <Link to="/rents"><Button variant="primary" >I miei Noleggi</Button></Link>
+            <Link to="/rents"><Button variant="primary" >My Rents</Button></Link>
+            <Link to="/configurator"><Button variant="primary" >Rent a Car</Button></Link>
           </Navbar.Brand>
 
         </>
