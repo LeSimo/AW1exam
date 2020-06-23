@@ -20,7 +20,8 @@ class Configurator extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { StartDate: '', EndDate: '', category: '', ageType: "less than 65", additionalDriver: "NO", extraInsurance: false, kmType: "less than 150 km/day", submitted: false, availableCars: [] }
+        this.state = { StartDate: '', EndDate: '', category: '', ageType: "less than 65", additionalDriver: "NO",
+         extraInsurance: false, kmType: "less than 150 km/day", submitted: false, availableCars: [], filteredavailableCars: [] }
     }
 
     updateAvailableCars = (carsId) => {
@@ -120,7 +121,7 @@ class Configurator extends React.Component {
                         {(this.state.StartDate && this.state.EndDate) && <Row>
                             <GetAvailableCars handleErrors={this.props.handleErrors} updateAvailableCars={this.updateAvailableCars}
                                 StartDate={this.state.StartDate} EndDate={this.state.EndDate} availableCars={this.state.availableCars} 
-                                category={this.state.category} cars={this.props.cars}/>
+                                category={this.state.category} cars={this.props.cars} updateField={this.updateField}/>
                             {(!this.state.category) && <Badge variant="secondary">Insert Category for price</Badge>}
                         </Row>}
 
@@ -141,16 +142,17 @@ class Configurator extends React.Component {
 }
 
 function GetAvailableCars(props) {
-    let filteredId;
+    let tmp;
     API.availableCars(props.StartDate, props.EndDate)
-        .then((carsId) => { props.updateAvailableCars(carsId) })
+        .then((carsId) => { tmp = carsId.map((c) => {return c.id})
+            props.updateAvailableCars(tmp) })
         .catch((errorObj) => {
             props.handleErrors(errorObj)
         }) //Condition for filter by category
-    //MUST ADD FILTER FOR CATEGORY
-    filteredId = props.availableCars.map((c) => {return c.id})
+    
+    //filteredId = props.availableCars.map((c) => {return c.id})
     let availableCarsObjects = props.cars.filter((c) => {
-        if(filteredId.includes(c.id))
+        if(props.availableCars.includes(c.id))
             return true
     })
    
@@ -160,11 +162,10 @@ function GetAvailableCars(props) {
     if(props.category){
         filteredCars = availableCarsObjects.filter((car) => {
             if(car.category === props.category){
-                console.log('true')
                 return true
             }
         })
-
+        
     }
     
 
@@ -242,9 +243,36 @@ function PriceCalculator(props) {
         frequentOption = 0.9;
     }
 
-    //Manca il filtro per il 10 % di veicoli
+    // filtro per il 10 % di veicoli per categoria
+    let filteredCars = props.cars.filter((c) => {
+        if(c.category === props.category){
+            return true
+        }
+    })
+    let totalCarsNumber = Object.keys(filteredCars).length;
 
-    let finalPrice = price * kmOption * driverOption * additionalDriverOption * extraInsuranceOption *frequentOption ;
+    // Ragionamento come nel calcolo delle auto per categoria disponibili
+    let availableCarsObjects = props.cars.filter((c) => {
+        if(props.availableCars.includes(c.id))
+            return true
+    })
+    if(props.category){
+        filteredCars = availableCarsObjects.filter((car) => {
+            if(car.category === props.category){
+                return true
+            }
+        }) 
+    }
+    let availableCarsNumber = Object.keys(filteredCars).length;
+
+    let garageOption = 1;
+    if(availableCarsNumber < (totalCarsNumber * 0.1)){
+        garageOption = 1.1;
+    }
+
+
+
+    let finalPrice = price * kmOption * driverOption * additionalDriverOption * extraInsuranceOption * garageOption *frequentOption ;
     return <><h3>{<Badge variant="light">{finalPrice.toFixed(2)} € </Badge>}</h3></>
 
 
