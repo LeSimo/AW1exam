@@ -164,6 +164,28 @@ async function availableCars(StartDate,EndDate){
     })
 }
 
+async function stub(card,cost){
+    return new Promise((resolve,reject) => {
+        fetch(baseURL+'/stub', {
+            method:'POST',
+            headers: {
+                'Content-Type' : 'application/json',
+            },
+            body: JSON.stringify({name: card.name, cc: card.cc, cvv: card.cvv, cost: cost}),
+        }).then((response) => {
+            if(response.ok){
+                response.json().then((obj) =>{
+                    resolve(obj)
+                })
+            }else{
+                response.json()
+                .then((obj) => {reject(obj)})       //error message in the response body
+                .catch((err) => {reject({ errors : [{param :"Application", masg:"Cannot parse server response"}] }) });
+            }
+        }).catch((err) => {reject({ errors : [{param: "Server",msg:"Cannot communicate"}] }) });
+    })
+}
+
 //API to export
-const API = {isAuthenticated,getBrands,getCars,getCategories,getRents,addRent,deleteRent,userLogin,userLogout,availableCars};
+const API = {isAuthenticated,getBrands,getCars,getCategories,getRents,addRent,deleteRent,userLogin,userLogout,availableCars,stub};
 export default API;

@@ -177,18 +177,21 @@ app.post('/api/available',(req,res) =>{
   .catch((err) => res.status(503).json(dbErrorObj))
 })
 
-/* FILTRO SUL CLIENT
-app.post('/api/availablev2',(req,res) =>{
-  const category = req.body.category;
-  const StartDate = req.body.StartDate;
-  const EndDate = req.body.EndDate;
-  console.log(typeof category)
-  dao.availableCarsV2(category,StartDate,EndDate)
-  .then((result) => res.json(result))
-  .catch((err) => res.status(503).json(dbErrorObj))
-})
+app.post('/api/stub',[
+  check('name').isLength({ min: 2}),
+  check('cc').isNumeric(),
+  check('cvv').isNumeric(),
+  check('cost').isNumeric()
+] ,(req,res) => {
+  const errors = validationResult(req);
+  if(!errors.isEmpty()){
+    res.json(false);
 
-*/
+  }
+  else{
+    res.json(true)
+  }
+})
 
 
 

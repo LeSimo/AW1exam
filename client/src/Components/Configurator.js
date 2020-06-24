@@ -21,7 +21,7 @@ class Configurator extends React.Component {
     constructor(props) {
         super(props);
         this.state = { StartDate: '', EndDate: '', category: '', ageType: "less than 65", additionalDriver: "NO",
-         extraInsurance: false, kmType: "less than 150 km/day", submitted: false, availableCars: [], filteredavailableCars: [] }
+         extraInsurance: false, kmType: "less than 150 km/day", submitted: false, availableCars: [], filteredavailableCars: [], cost: null }
     }
 
     updateAvailableCars = (carsId) => {
@@ -30,9 +30,21 @@ class Configurator extends React.Component {
         }
     }
 
+    updateAvailableFilteredCars = (carsId) => {
+        if (JSON.stringify(carsId) !== JSON.stringify(this.state.filteredavailableCars)) {
+            this.setState({ filteredavailableCars: carsId })
+        }
+    }
+
+    updateCost = (cost) => {
+        this.setState({cost : cost})
+    }
+
+
     updateField = (name, value) => {
         this.setState({ [name]: value });
     }
+
 
     handleSubmit = (event) => {
         event.preventDefault();
@@ -40,14 +52,21 @@ class Configurator extends React.Component {
         if (!form.checkValidity()) {
             form.reportValidity();
         } else {
-            //
+            this.props.setRent({
+                CarId : this.state.filteredavailableCars[0],
+                UserId : this.props.UserId,
+                cost : this.state.cost,
+                StartDate : this.state.StartDate,
+                EndDate : this.state.EndDate
+            })
+            this.setState({ submitted: true });
         }
     }
 
 
     render() {
         if (this.state.submitted)
-            return <Redirect to='/' />;
+            return <Redirect to='/payment' />;
         return (
             <Row className="vheight-100">
                 <Col sm={4}></Col>
@@ -58,11 +77,13 @@ class Configurator extends React.Component {
                             <Row>
                                 <Col>
                                     <Form.Label>Starting Date</Form.Label>
-                                    <Form.Control type="date" name="StartDate" value={this.state.StartDate} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)} required />
+                                    <Form.Control type="date" name="StartDate" value={this.state.StartDate} min={moment().format('YYYY-MM-DD')} max={this.state.EndDate}
+                                        onChange={(ev) => this.updateField(ev.target.name, ev.target.value)} required />
                                 </Col>
                                 <Col>
                                     <Form.Label>Ending Date</Form.Label>
-                                    <Form.Control type="date" name="EndDate" value={this.state.EndDate} onChange={(ev) => this.updateField(ev.target.name, ev.target.value)} required />
+                                    <Form.Control type="date" name="EndDate" value={this.state.EndDate} min = {this.state.StartDate}
+                                        onChange={(ev) => this.updateField(ev.target.name, ev.target.value)} required />
                                 </Col>
                             </Row>
                         </Form.Group>
@@ -113,7 +134,8 @@ class Configurator extends React.Component {
                                 <Form.Check type="checkbox" name="extraInsurance" label="Additional insurance?" value={this.state.extraInsurance} onChange={(ev) => this.updateField(ev.target.name, ev.target.checked)} />
                             </Col>
                         </Form.Group>
-                        <Button variant="primary" type="submit">Submit</Button>
+                        <Button variant="primary" type="submit" disabled={!this.state.category || Object.keys(this.state.filteredavailableCars).length === 0 }>
+                                Choose and Pay</Button>
 
                     </Form>
 
@@ -121,7 +143,7 @@ class Configurator extends React.Component {
                         {(this.state.StartDate && this.state.EndDate) && <Row>
                             <GetAvailableCars handleErrors={this.props.handleErrors} updateAvailableCars={this.updateAvailableCars}
                                 StartDate={this.state.StartDate} EndDate={this.state.EndDate} availableCars={this.state.availableCars} 
-                                category={this.state.category} cars={this.props.cars} updateField={this.updateField}/>
+                                category={this.state.category} cars={this.props.cars} updateAvailableFilteredCars={this.updateAvailableFilteredCars}/>
                             {(!this.state.category) && <Badge variant="secondary">Insert Category for price</Badge>}
                         </Row>}
 
@@ -131,7 +153,8 @@ class Configurator extends React.Component {
                         {(this.state.StartDate && this.state.EndDate && this.state.category) &&
                             <PriceCalculator cars={this.props.cars} availableCars={this.state.availableCars} category={this.state.category}
                                 StartDate={this.state.StartDate} EndDate={this.state.EndDate} ageType={this.state.ageType} additionalDriver={this.state.additionalDriver}
-                                extraInsurance={this.state.extraInsurance} kmType={this.state.kmType} rents={this.props.rents}/>}
+                                extraInsurance={this.state.extraInsurance} kmType={this.state.kmType} rents={this.props.rents}
+                                updateCost={this.updateCost} cost={this.state.cost}/>}
                     </h3>
 
                 </Col>
@@ -150,7 +173,6 @@ function GetAvailableCars(props) {
             props.handleErrors(errorObj)
         }) //Condition for filter by category
     
-    //filteredId = props.availableCars.map((c) => {return c.id})
     let availableCarsObjects = props.cars.filter((c) => {
         if(props.availableCars.includes(c.id))
             return true
@@ -167,6 +189,10 @@ function GetAvailableCars(props) {
         })
         
     }
+
+    let filteredCarsId = filteredCars.map((c) => {return c.id});
+    props.updateAvailableFilteredCars(filteredCarsId)
+    
     
 
     if(!props.category){
@@ -273,7 +299,14 @@ function PriceCalculator(props) {
 
 
     let finalPrice = price * kmOption * driverOption * additionalDriverOption * extraInsuranceOption * garageOption *frequentOption ;
-    return <><h3>{<Badge variant="light">{finalPrice.toFixed(2)} € </Badge>}</h3></>
+    if(finalPrice){
+        finalPrice = finalPrice.toFixed(2)
+        if(finalPrice !== props.cost){
+            props.updateCost(finalPrice)
+        }
+        
+    }
+    return <><h3>{<Badge variant="light">{props.cost} € </Badge>}</h3></>
 
 
 

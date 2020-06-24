@@ -13,7 +13,6 @@ class LoginForm extends React.Component {
 
     constructor(props) {
         super(props);
-        //this.loginMethod = this.loginMethod.bind(this);
         this.state = { username: '', password: '', submitted: false };
     }
 
@@ -57,7 +56,7 @@ class LoginForm extends React.Component {
                                 </Form.Group>
 
                                 <Button variant="outline-primary" type="submit">Login</Button>
-                                <Button variant="outline-primary"><Link  to= "/cars">Cancel</Link></Button>
+                                <Button variant="outline-primary"><Link  to= "/cars">Annulla</Link></Button>
 
                             </Form>
 
