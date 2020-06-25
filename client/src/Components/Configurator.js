@@ -1,8 +1,7 @@
 import React from 'react';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
-import { Button, ButtonGroup, Navbar, Nav, Form, FormControl, Container, Row, Col, NavItem, Modal, ListGroupItem, Table, Badge } from 'react-bootstrap';
+import { Button, Form, Row, Col, Badge } from 'react-bootstrap';
 import API from './../API/API'
 
 
@@ -14,14 +13,14 @@ function CategoryOption(props) {
 }
 
 
-
-
 class Configurator extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { StartDate: '', EndDate: '', category: '', ageType: "less than 65", additionalDriver: "NO",
-         extraInsurance: false, kmType: "less than 150 km/day", submitted: false, availableCars: [], filteredavailableCars: [], cost: null }
+        this.state = {
+            StartDate: '', EndDate: '', category: '', ageType: "less than 65", additionalDriver: "NO",
+            extraInsurance: false, kmType: "less than 150 km/day", submitted: false, availableCars: [], filteredavailableCars: [], cost: null
+        }
     }
 
     updateAvailableCars = (carsId) => {
@@ -37,7 +36,7 @@ class Configurator extends React.Component {
     }
 
     updateCost = (cost) => {
-        this.setState({cost : cost})
+        this.setState({ cost: cost })
     }
 
 
@@ -53,11 +52,11 @@ class Configurator extends React.Component {
             form.reportValidity();
         } else {
             this.props.setRent({
-                CarId : this.state.filteredavailableCars[0],
-                UserId : this.props.UserId,
-                cost : this.state.cost,
-                StartDate : this.state.StartDate,
-                EndDate : this.state.EndDate
+                CarId: this.state.filteredavailableCars[0],
+                UserId: this.props.UserId,
+                cost: this.state.cost,
+                StartDate: this.state.StartDate,
+                EndDate: this.state.EndDate
             })
             this.setState({ submitted: true });
         }
@@ -82,7 +81,7 @@ class Configurator extends React.Component {
                                 </Col>
                                 <Col>
                                     <Form.Label>Ending Date</Form.Label>
-                                    <Form.Control type="date" name="EndDate" value={this.state.EndDate} min = {this.state.StartDate}
+                                    <Form.Control type="date" name="EndDate" value={this.state.EndDate} min={this.state.StartDate}
                                         onChange={(ev) => this.updateField(ev.target.name, ev.target.value)} required />
                                 </Col>
                             </Row>
@@ -134,16 +133,16 @@ class Configurator extends React.Component {
                                 <Form.Check type="checkbox" name="extraInsurance" label="Additional insurance?" value={this.state.extraInsurance} onChange={(ev) => this.updateField(ev.target.name, ev.target.checked)} />
                             </Col>
                         </Form.Group>
-                        <Button variant="primary" type="submit" disabled={!this.state.category || Object.keys(this.state.filteredavailableCars).length === 0 }>
-                                Choose and Pay</Button>
+                        <Button variant="primary" type="submit" disabled={!this.state.category || Object.keys(this.state.filteredavailableCars).length === 0}>
+                            Choose and Pay</Button>
 
                     </Form>
 
                     <h3>Available Cars:  {(!this.state.StartDate || !this.state.EndDate) && <Badge variant="secondary">Insert Data Interval please</Badge>}
                         {(this.state.StartDate && this.state.EndDate) && <Row>
                             <GetAvailableCars handleErrors={this.props.handleErrors} updateAvailableCars={this.updateAvailableCars}
-                                StartDate={this.state.StartDate} EndDate={this.state.EndDate} availableCars={this.state.availableCars} 
-                                category={this.state.category} cars={this.props.cars} updateAvailableFilteredCars={this.updateAvailableFilteredCars}/>
+                                StartDate={this.state.StartDate} EndDate={this.state.EndDate} availableCars={this.state.availableCars}
+                                category={this.state.category} cars={this.props.cars} updateAvailableFilteredCars={this.updateAvailableFilteredCars} />
                             {(!this.state.category) && <Badge variant="secondary">Insert Category for price</Badge>}
                         </Row>}
 
@@ -153,8 +152,8 @@ class Configurator extends React.Component {
                         {(this.state.StartDate && this.state.EndDate && this.state.category) &&
                             <PriceCalculator cars={this.props.cars} availableCars={this.state.availableCars} category={this.state.category}
                                 StartDate={this.state.StartDate} EndDate={this.state.EndDate} ageType={this.state.ageType} additionalDriver={this.state.additionalDriver}
-                                extraInsurance={this.state.extraInsurance} kmType={this.state.kmType} rents={this.props.rents}
-                                updateCost={this.updateCost} cost={this.state.cost}/>}
+                                extraInsurance={this.state.extraInsurance} kmType={this.state.kmType} rentals={this.props.rentals}
+                                updateCost={this.updateCost} cost={this.state.cost} />}
                     </h3>
 
                 </Col>
@@ -167,39 +166,47 @@ class Configurator extends React.Component {
 function GetAvailableCars(props) {
     let tmp;
     API.availableCars(props.StartDate, props.EndDate)
-        .then((carsId) => { tmp = carsId.map((c) => {return c.id})
-            props.updateAvailableCars(tmp) })
+        .then((carsId) => {
+            tmp = carsId.map((c) => { return c.id })
+            props.updateAvailableCars(tmp)
+        })
         .catch((errorObj) => {
             props.handleErrors(errorObj)
         }) //Condition for filter by category
-    
+
     let availableCarsObjects = props.cars.filter((c) => {
-        if(props.availableCars.includes(c.id))
+        if (props.availableCars.includes(c.id))
             return true
+        else {
+            return false
+        }
     })
-   
-    
+
+
     // Se filtro category attivo
     let filteredCars = [];
-    if(props.category){
+    if (props.category) {
         filteredCars = availableCarsObjects.filter((car) => {
-            if(car.category === props.category){
+            if (car.category === props.category) {
                 return true
             }
+            else {
+                return false
+            }
         })
-        
+
     }
 
-    let filteredCarsId = filteredCars.map((c) => {return c.id});
+    let filteredCarsId = filteredCars.map((c) => { return c.id });
     props.updateAvailableFilteredCars(filteredCarsId)
-    
-    
 
-    if(!props.category){
+
+
+    if (!props.category) {
         return <><h3>{<Badge variant="light">{Object.keys(props.availableCars).length}</Badge>}</h3></>
-    }else{
+    } else {
         // stampo il numero aggiornato con le categorie
-    return <><h3>{<Badge variant="light">{Object.keys(filteredCars).length} </Badge>}{<Badge variant="secondary">in this category</Badge>}</h3></>
+        return <><h3>{<Badge variant="light">{Object.keys(filteredCars).length} </Badge>}{<Badge variant="secondary">in this category</Badge>}</h3></>
     }
 
 }
@@ -222,91 +229,104 @@ function PriceCalculator(props) {
             break;
         case 'E': price += 40;
             break;
+        default: break;
     }
 
     let a = moment(props.EndDate);
     let b = moment(props.StartDate);
-    let days = a.diff(b,'days');
-    days +=1;
+    let days = a.diff(b, 'days');
+    days += 1;
     // Days of rent
     price = price * days;
 
     // Km options
     let kmOption = 1;
-    if(props.kmType === "less than 50 km/day"){
+    if (props.kmType === "less than 50 km/day") {
         kmOption = 0.95;
     }
 
-    if(props.kmType === "unlimited"){
+    if (props.kmType === "unlimited") {
         kmOption = 1.05
     }
 
     let driverOption = 1;
-    if(props.ageType === "less than 25"){
+    if (props.ageType === "less than 25") {
         driverOption = 1.05;
     }
-    if(props.ageType === "more than 65"){
+    if (props.ageType === "more than 65") {
         driverOption = 1.1;
     }
 
     let additionalDriverOption = 1;
-    if(props.additionalDriver != "NO"){
+    if (props.additionalDriver !== "NO") {
         additionalDriverOption = 1.15;
     }
 
     let extraInsuranceOption = 1;
-    if(props.extraInsurance){
+    if (props.extraInsurance) {
         extraInsuranceOption = 1.2;
     }
 
     let frequentOption = 1;
-    const pastRents = props.rents.filter((rent) => {
+    const pastRentals = props.rentals.filter((rent) => {
         if (moment(rent.StartDate).isBefore(moment()))
             return true
+        else {
+            return false
+        }
     })
 
-    if(Object.keys(pastRents).length >= 3){
+    if (Object.keys(pastRentals).length >= 3) {
         frequentOption = 0.9;
     }
 
     // filtro per il 10 % di veicoli per categoria
     let filteredCars = props.cars.filter((c) => {
-        if(c.category === props.category){
+        if (c.category === props.category) {
             return true
+        }
+        else {
+            return false
         }
     })
     let totalCarsNumber = Object.keys(filteredCars).length;
 
     // Ragionamento come nel calcolo delle auto per categoria disponibili
     let availableCarsObjects = props.cars.filter((c) => {
-        if(props.availableCars.includes(c.id))
+        if (props.availableCars.includes(c.id))
             return true
+        else {
+            return false
+        }
     })
-    if(props.category){
+    if (props.category) {
         filteredCars = availableCarsObjects.filter((car) => {
-            if(car.category === props.category){
+            if (car.category === props.category) {
                 return true
             }
-        }) 
+            else {
+                return false
+            }
+        })
     }
     let availableCarsNumber = Object.keys(filteredCars).length;
 
     let garageOption = 1;
-    if(availableCarsNumber < (totalCarsNumber * 0.1)){
+    if (availableCarsNumber < (totalCarsNumber * 0.1)) {
         garageOption = 1.1;
     }
 
 
 
-    let finalPrice = price * kmOption * driverOption * additionalDriverOption * extraInsuranceOption * garageOption *frequentOption ;
-    if(finalPrice){
+    let finalPrice = price * kmOption * driverOption * additionalDriverOption * extraInsuranceOption * garageOption * frequentOption;
+    if (finalPrice) {
         finalPrice = finalPrice.toFixed(2)
-        if(finalPrice !== props.cost){
+        if (finalPrice !== props.cost) {
             props.updateCost(finalPrice)
         }
-        
+
     }
-    return <><h3>{<Badge variant="light">{props.cost} € </Badge>}</h3></>
+    return <>{Object.keys(filteredCars).length > 0 && <h3>{<Badge variant="light">{props.cost} € </Badge>}</h3>}</>
 
 
 

@@ -1,12 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Redirect, Route, Link } from 'react-router-dom';
-import { Switch } from 'react-router-dom';        //modified before it was react-router
-import { withRouter } from 'react-router-dom';
-import { Button, ButtonGroup, Navbar, Nav, Form, FormControl, Container, Row, Col, NavItem, Modal, ListGroupItem } from 'react-bootstrap';
+import React from 'react';
+import { Col } from 'react-bootstrap';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { NavLink } from 'react-router-dom';
-//import Sidebar from 'react-bootstrap-sidebar';
-import API from './.././API/API'
+
 
 function CategoryRow(props) {
     return (
@@ -24,7 +19,6 @@ function BrandRow(props) {
 
 function SideBar(props) {
     return <>
-
         <Col md={2} bg="light" id="left-sidebar" className="collapse d-sm-block below-nav">
             <h3>Brands</h3>
             <ListGroup >
@@ -36,11 +30,8 @@ function SideBar(props) {
                 {props.categories.map((c) => <CategoryRow key={c} category={c} categoriesFilters={props.categoriesFilters}
                     addOrRemoveCategoriesFilters={props.addOrRemoveCategoriesFilters} />)}
             </ListGroup>
-
         </Col>
-
     </>
-
 }
 
 export default SideBar;

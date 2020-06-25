@@ -1,7 +1,5 @@
 import React from 'react';
-import { Button, ButtonGroup, Navbar, Nav, Form, FormControl, Container, Row, Col, NavItem, Modal, ListGroupItem, Table } from 'react-bootstrap';
-import ListGroup from 'react-bootstrap/ListGroup';
-
+import { Col, Table } from 'react-bootstrap';
 
 
 function CarRow(props) {
@@ -35,6 +33,9 @@ function CarList(props) {
         cars = cars.filter((c) => {
             if (brandsFilters.includes(c.brand))
                 return true;
+            else {
+                return false
+            }
         })
     }
     //filter for categories
@@ -42,24 +43,27 @@ function CarList(props) {
         cars = cars.filter((c) => {
             if (categoriesFilters.includes(c.category))
                 return true;
+            else {
+                return false
+            }
         })
     }
 
 
     return <>
         <Col md={10} bg="light" className="collapse d-sm-block below-nav">
-            <h2>Auto Noleggiabili</h2>
+            <h2>Rentable Cars</h2>
             <Table striped hover>
                 <thead>
                     <tr>
-                        <th className='col-3'>Modello</th>
-                        <th className='col-2'>Marca</th>
-                        <th className='col-2'>Categoria</th>
-                        <th className='col-2'>Targa</th>
+                        <th className='col-3'>Model</th>
+                        <th className='col-2'>Brand</th>
+                        <th className='col-2'>Category</th>
+                        <th className='col-2'>Plate</th>
                     </tr>
                 </thead>
                 <tbody>
-                {cars.map((car) => <CarRow key={car.plate} car={car} />)}
+                    {cars.map((car) => <CarRow key={car.plate} car={car} />)}
                 </tbody>
             </Table>
         </Col>

@@ -27,7 +27,7 @@ exports.listCars = function () {
   })
 };
 
-//da vedere se utile
+//NON UTILIZZATA
 exports.readCarById = function (id) {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT * FROM CARS WHERE id = ?';
@@ -49,7 +49,7 @@ exports.readCarById = function (id) {
 //query per le prenotazioni di un user 
 exports.rentedCars = function (id) {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT CarId,UserId,cost,StartDate,EndDate,invoice from RENTS where RENTS.UserId=?';
+    const sql = 'SELECT CarId,UserId,cost,StartDate,EndDate,invoice from RENTALS where RENTALS.UserId=?';
     db.all(sql, [id], (err, rows) => {
       if (err)
         reject(err);
@@ -68,7 +68,7 @@ exports.rentedCars = function (id) {
 
 exports.deleteRent = function (invoice) {
   return new Promise((resolve, reject) => {
-    const sql = "DELETE FROM RENTS WHERE invoice = ?";
+    const sql = "DELETE FROM RENTALS WHERE invoice = ?";
     db.run(sql, [invoice], (err) => {
       if (err) {
         reject(err);
@@ -82,7 +82,7 @@ exports.deleteRent = function (invoice) {
 
 exports.createRent = function (rent) {
   return new Promise((resolve, reject) => {
-    const sql = "INSERT INTO RENTS(CarId,UserId,cost,StartDate,EndDate) VALUES (?,?,?,?,?)";
+    const sql = "INSERT INTO RENTALS(CarId,UserId,cost,StartDate,EndDate) VALUES (?,?,?,?,?)";
     //invoice is not needed. It's added by the insert operation
     db.run(sql, [rent.CarId, rent.UserId, rent.cost, rent.StartDate, rent.EndDate], function (err) {
       if (err) {
@@ -139,7 +139,7 @@ exports.checkUserPass = function (name, pass) {
 }
 
 
-//da vedere se utile
+
 exports.loadUserInfo = function (userID) {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT id,name FROM USERS WHERE id = ?';
@@ -171,7 +171,7 @@ exports.loadBrands = function () {
         reject(err);
         return;
       }
-      if (rows.length === 0) {            //FORSE DA TOGLIERE
+      if (rows.length === 0) {
         reject(null);
         console.log('ritornano 0 righe!');
         return;
@@ -206,40 +206,20 @@ exports.loadCategories = function () {
   })
 }
 
-exports.availableCars = function (StartDate,EndDate) {
- return new Promise((resolve,reject) => {
-   const sql='SELECT id FROM CARS EXCEPT SELECT DISTINCT CarId FROM RENTS  WHERE (? BETWEEN StartDate and EndDate) or (? BETWEEN StartDate and EndDate) or (StartDate  BETWEEN ? and ?)  or (EndDate  BETWEEN ? and ?)'
-   db.all(sql,[StartDate,EndDate,StartDate,EndDate,StartDate,EndDate],(err,rows) => {
-    if (err) {
-      reject(err);
-      return;
-    }
-    if (rows.length === 0) {            
-      reject(null);
-      return;
-    }
-    const carsId = rows;
-    resolve (carsId);
-   }) 
- })
-}
-
-
-/* FILTRO SUL CLIENT
-exports.availableCarsV2 = function (category,StartDate,EndDate) {
-  return new Promise((resolve,reject) => {
-    const sql='SELECT id FROM CARS WHERE CARS.category like ? EXCEPT SELECT DISTINCT CarId FROM RENTS  WHERE (? BETWEEN StartDate and EndDate) or (? BETWEEN StartDate and EndDate)'
-    db.all(sql,[categoryStartDate,EndDate],(err,rows) => {
-     if (err) {
-       reject(err);
-       return;
-     }
-     if (rows.length === 0) {            
-       reject(null);
-       return;
-     }
-     const carsId = rows;
-     resolve (carsId);
-    }) 
+exports.availableCars = function (StartDate, EndDate) {
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT id FROM CARS EXCEPT SELECT DISTINCT CarId FROM RENTALS  WHERE (? BETWEEN StartDate and EndDate) or (? BETWEEN StartDate and EndDate) or (StartDate  BETWEEN ? and ?)  or (EndDate  BETWEEN ? and ?)'
+    db.all(sql, [StartDate, EndDate, StartDate, EndDate, StartDate, EndDate], (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      if (rows.length === 0) {
+        reject(null);
+        return;
+      }
+      const carsId = rows;
+      resolve(carsId);
+    })
   })
- }  */
+}

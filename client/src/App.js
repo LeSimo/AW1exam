@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 import API from './API/API'
-//import {Redirect, Route,Link} from 'react-router-dom';
-//import {Switch} from 'react-router-dom';        //modified before it was react-router
-//import { withRouter } from 'react-router-dom';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import NavBar from './Components/NavBar'
 import SideBar from './Components/SideBar'
 import CarList from './Components/CarList'
 import LoginForm from './Components/LoginForm'
-import RentsList from './Components/RentsList'
+import RentalsList from './Components/RentalsList'
 import Configurator from './Components/Configurator'
 import PaymentForm from './Components/PaymentForm'
-import { AuthContext } from './auth/AuthContext'
-import { Row, Col, Container, Navbar } from 'react-bootstrap'
+import { Row, Col, Container } from 'react-bootstrap'
 
 
 class App extends React.Component {
@@ -22,7 +17,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      brands: [], cars: [], categories: [], rents: [], isLogged: false,
+      brands: [], cars: [], categories: [], rentals: [], isLogged: false,
       loading: false, errorMsg: '', brandsFilters: [], categoriesFilters: [],
       authUser: '', authErr: '', rent: null, payState: 'none'
     };
@@ -32,9 +27,7 @@ class App extends React.Component {
     API.getBrands().then(
       (b) => {
         this.setState({ brands: b })
-
       })
-
     API.getCars().then(
       (c) => {
         this.setState({ cars: c })
@@ -45,6 +38,7 @@ class App extends React.Component {
         this.setState({ categories: c })
       })
   }
+
 
   handleErrors(err) {
     if (err) {
@@ -60,13 +54,12 @@ class App extends React.Component {
   logout = () => {
     this.setState({ isLogged: false })
     API.userLogout().then(() => {
-      this.setState({ authUser: null, authErr: null, isLogged: false, rents: [], payState: '',
-      rent: {CarId: '',EndDate: '',StartDate: '',UserId:'',cost:''}
-    });
+      this.setState({
+        authUser: null, authErr: null, isLogged: false, rentals: [], payState: '',
+        rent: { CarId: '', EndDate: '', StartDate: '', UserId: '', cost: '' }
+      });
       API.getCars().catch((errorObj) => { this.handleErrors(errorObj) });
     });
-    //this.setState({ isLogged: false })
-
   }
 
 
@@ -75,9 +68,9 @@ class App extends React.Component {
     API.userLogin(username, password).then(
       (user) => {
         this.setState({ isLogged: true, authUser: user })
-        API.getRents(this.state.authUser.userID)
-          .then((rents) => {
-            this.setState({ rents: rents, authErr: null });  
+        API.getRentals(this.state.authUser.userID)
+          .then((rentals) => {
+            this.setState({ rentals: rentals, authErr: null });
           })
           .catch((errorObj) => {
             this.handleErrors(errorObj);
@@ -87,7 +80,6 @@ class App extends React.Component {
       (errorObj) => {
         const err0 = errorObj.errors[0];
         this.setState({ authErr: err0 });
-        //this.props.history.push("/configurator")
       }
     );
 
@@ -95,16 +87,15 @@ class App extends React.Component {
 
   // Pay method
   pay = (card, cost) => {
-    this.setState({payState: 'included'});
+    this.setState({ payState: 'included' });
     API.stub(card, cost).then((boolvalue) => {
-      console.log('Entra nel primo then')
       if (boolvalue) {
         API.addRent(this.state.rent)
           .then(() => {
             this.setState({ rent: '', payState: 'none' });
-            API.getRents(this.state.authUser.userID)
-              .then((rents) => {
-                this.setState({ rents: rents, authErr: null });
+            API.getRentals(this.state.authUser.userID)
+              .then((rentals) => {
+                this.setState({ rentals: rentals, authErr: null });
               })
               .catch((errorObj) => {
                 this.handleErrors(errorObj);
@@ -115,9 +106,8 @@ class App extends React.Component {
             this.setState({ authErr: err0 });
             this.handleErrors(errorObj);
           });
-      }else{
-        console.log('Sono nel caso false')
-        this.setState({payState:"error"})
+      } else {
+        this.setState({ payState: "error" })
       }
     })
       .catch(
@@ -132,9 +122,9 @@ class App extends React.Component {
 
   deleteRent = (invoice) => {
     API.deleteRent(invoice).then(() => {
-      API.getRents(this.state.authUser.userID)
-        .then((rents) => {
-          this.setState({ rents: rents, authErr: null });
+      API.getRentals(this.state.authUser.userID)
+        .then((rentals) => {
+          this.setState({ rentals: rentals, authErr: null });
         })
     }).catch((errorObj) => {
       this.handleErrors(errorObj)
@@ -172,9 +162,6 @@ class App extends React.Component {
     }
     this.setState({ categoriesFilters: categoriesFilters })
   }
-
-
-
 
 
   render() {
@@ -216,14 +203,14 @@ class App extends React.Component {
           }}>
           </Route>
 
-          <Route path="/rents" render={(props) => {
+          <Route path="/rentals" render={(props) => {
             if (!this.state.isLogged) {
               return <Redirect to="/cars" />
             } else {
               return <>
                 <Container fluid>
                   <Row>
-                    <RentsList rents={this.state.rents} deleteRent={this.deleteRent} cars={this.state.cars} />
+                    <RentalsList rentals={this.state.rentals} deleteRent={this.deleteRent} cars={this.state.cars} />
                   </Row>
                 </Container>
               </>
@@ -236,30 +223,24 @@ class App extends React.Component {
           <Route path='/configurator' render={(props) => {
             if (!this.state.isLogged) {
               return <Redirect to="/cars" />
-            }/*
-            if(this.state.payState === 'included'){
-              return <Redirect to="/payment" />
-            }*/
-             else {
+            }
+            else {
               return <>
-                <Configurator categories={this.state.categories} handleErrors={this.handleErrors} cars={this.state.cars} rents={this.state.rents}
+                <Configurator categories={this.state.categories} handleErrors={this.handleErrors} cars={this.state.cars} rentals={this.state.rentals}
                   UserId={this.state.authUser.userID} setRent={this.setRent} />
               </>
             }
           }} />
-
 
           <Route path='/payment' render={(props) => {
             if (!this.state.isLogged) {
               return <Redirect to="/cars" />
             } else {
               return <>
-                <PaymentForm isLogged={this.state.isLogged} payMethod={this.pay}  payState={this.state.payState} cost={this.state.rent.cost} />
+                <PaymentForm isLogged={this.state.isLogged} payMethod={this.pay} payState={this.state.payState} cost={this.state.rent.cost} />
               </>
             }
           }} />
-
-
 
           <Route path='/' render={(props) => {
             if (this.state.isLogged)
@@ -269,16 +250,10 @@ class App extends React.Component {
             }
           }}>
           </Route>
-
-
         </Switch>
-
-
       </Router>
-
     </>
   }
-
 }
 
 export default App;

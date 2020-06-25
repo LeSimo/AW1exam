@@ -1,13 +1,9 @@
 import React from 'react';
-
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import Alert from 'react-bootstrap/Alert';
-import { AuthContext } from '../auth/AuthContext'
-import { Redirect, Route, Link, } from 'react-router-dom';
-import { Button, Navbar, Nav, Form, FormControl, Container,NavLink } from 'react-bootstrap';
+import { Redirect, Link } from 'react-router-dom';
+import { Button, Form, Container, } from 'react-bootstrap';
 
 class LoginForm extends React.Component {
 
@@ -43,35 +39,29 @@ class LoginForm extends React.Component {
                                     Log-in to your Rent's Account
                                 </div>
                             </h2>
-
                             <Form method="POST" onSubmit={(event) => this.handleSubmit(event, this.props.loginMethod)}>
                                 <Form.Group controlId="username">
                                     <Form.Label>E-mail</Form.Label>
                                     <Form.Control type="email" name="email" placeholder="E-mail" value={this.state.username} onChange={(ev) => this.onChangeUsername(ev)} required autoFocus />
                                 </Form.Group>
-
                                 <Form.Group controlId="password">
                                     <Form.Label>Password</Form.Label>
                                     <Form.Control type="password" name="password" placeholder="Password" value={this.state.password} onChange={(ev) => this.onChangePassword(ev)} required />
                                 </Form.Group>
-
                                 <Button variant="outline-primary" type="submit">Login</Button>
-                                <Button variant="outline-primary"><Link  to= "/cars">Annulla</Link></Button>
-
+                                <Button variant="outline-primary"><Link to="/cars">Cancel</Link></Button>
                             </Form>
-
-                            {this.props.authErr && 
-                            <Alert variant="danger">Credenziali errate</Alert>
+                            {this.props.authErr &&
+                                <Alert variant="danger">Credenziali errate</Alert>
                             }
-                            
+
                         </Col>
                     </Row>
                 </Container>
             </>
         )
-   
-        }
     }
+}
 
 
 
