@@ -123,6 +123,7 @@ app.get('/api/user', (req, res) => {
 // Parameter: Car id
 // Response body: object describing a Car
 // Error: if the car does not exist, returns {}
+//NON UTILIZZATA
 app.get('/api/cars/:id', (req, res) => {
   dao.readCarById(req.params.id)
     .then((car) => res.json(car))
@@ -153,7 +154,7 @@ app.delete('/api/rentals/:invoice', (req, res) => {
 
 
 // POST /rentals
-// Request body: object describing an Rent (CarId,UserId,cost,StartDate,EndDate)
+// Request body: object describing an Rent (CarId,UserId,cost,StartDate,EndDate) and user info
 // Response body: empty 
 app.post('/api/rentals', (req, res) => {
   const userID = req.user && req.user.userID;

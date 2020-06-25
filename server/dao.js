@@ -104,20 +104,17 @@ exports.checkUserPass = function (name, pass) {
     db.all(sql, [name], (err, rows) => {
       if (err) {
         reject(err);
-        console.log('primo if')
         return;
       }
       if (rows.length === 0) {
         reject(err);
         resolve(null);
-        console.log('rows.lenght = 0')
       } else {
         const passwordHashDb = rows[0].passhash;
 
         bcrypt.compare(pass, passwordHashDb, function (err, res) {
           if (err) {
             reject(err);
-            console.log('bcrytp failed')
           }
           else {
             if (res) {
@@ -128,7 +125,6 @@ exports.checkUserPass = function (name, pass) {
               return;
             } else {
               reject(null);
-              console.log('ultimo else')
               return;
             }
           }
