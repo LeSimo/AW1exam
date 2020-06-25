@@ -70,7 +70,7 @@
 
 ## Screenshot
 
-![Configurator Screenshot](./img/Configurator.jpg)
+![Configurator Screenshot](./img/Configurator.JPG)
 
 ## Test users
 
