@@ -31,7 +31,6 @@ class App extends React.Component {
     API.getCars().then(
       (c) => {
         this.setState({ cars: c })
-
       })
     API.getCategories().then(
       (c) => {
@@ -216,7 +215,6 @@ class App extends React.Component {
               </>
             }
           }}>
-
           </Route>
 
 

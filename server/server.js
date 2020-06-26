@@ -3,7 +3,6 @@ const morgan = require('morgan'); // logging middleware
 const jwt = require('express-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-// const csrf = require('csurf');   DA VALUTARNE L'UTILIZZO
 const { check, validationResult } = require('express-validator'); // validation library
 const dao = require('./dao.js');
 
@@ -49,10 +48,6 @@ app.post('/api/login', (req, res) => {
 
 app.use(cookieParser());
 
-/* NON IMPLEMENTATO AL MOMENTO
-const csrfProtection = csrf({
-  cookie: { httpOnly: true, sameSite: true }
-});  */
 
 app.post('/api/logout', (req, res) => {
   res.clearCookie('token').end();
@@ -70,14 +65,22 @@ app.get('/api/cars', (req, res) => {
     .catch((err) => res.status(503).json(dbErrorObj));
 });
 
-
+// GET /brands
+// Request body: empty
+// Response body: Array of brands
+// Errors: none
+// Don't need authentication
 app.get('/api/brands', (req, res) => {
   dao.loadBrands()
     .then((brands) => res.json(brands))
     .catch((err) => res.status(503).json(dbErrorObj));
 })
 
-
+// GET /categories
+// Request body: empty
+// Response body: Array of categories
+// Errors: none
+// Don't need authentication
 app.get('/api/categories', (req, res) => {
   dao.loadCategories()
     .then((categories) => res.json(categories))
@@ -99,20 +102,6 @@ app.use(function (err, req, res, next) {
     res.status(401).json(authErrorObj);
   }
 });
-
-
-// GET /user : needed to know which is the user name when the user is already authenticated and
-// somebody reloaded the page with the browser
-// NO need to protect with CSRF: it is a GET request  DA CONTROLLARE
-app.get('/api/user', (req, res) => {
-  // Extract userID from JWT payload
-  const userID = req.user && req.user.userID;
-  dao.loadUserInfo(userID)   // Only retrieve user info: jwt would stop if not authorized
-    .then((userObj) => {
-      res.json(userObj);
-    }).catch((err) => res.status(503).json(dbErrorObj));
-});
-
 
 
 // REST API endpoints
@@ -192,8 +181,6 @@ app.post('/api/stub', [
     res.json(true)
   }
 })
-
-
 
 
 

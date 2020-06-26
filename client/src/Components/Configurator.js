@@ -215,9 +215,8 @@ function PriceCalculator(props) {
     if (Object.keys(props.availableCars).length === 0) {
         return <> No available cars</>
     }
-    //return <>Prezzo</>
     let price = 0;
-    // Choose the car's category
+    // Selezioni in base alla categoria dell'auto
     switch (props.category) {
         case "A": price += 80;
             break;
@@ -236,7 +235,7 @@ function PriceCalculator(props) {
     let b = moment(props.StartDate);
     let days = a.diff(b, 'days');
     days += 1;
-    // Days of rent
+    // Giorni di noleggio
     price = price * days;
 
     // Km options

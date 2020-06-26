@@ -135,30 +135,7 @@ exports.checkUserPass = function (name, pass) {
 }
 
 
-
-exports.loadUserInfo = function (userID) {
-  return new Promise((resolve, reject) => {
-    const sql = 'SELECT id,name FROM USERS WHERE id = ?';
-    db.all(sql, [userID], (err, rows) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      if (rows.length === 0) {
-        reject(null);
-        return;
-      }
-      resolve({
-        userID: rows[0].id,
-        name: rows[0].name,
-      });
-      return;
-    })
-  })
-}
-
 //Funzione per caricare i vari brand
-
 exports.loadBrands = function () {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT DISTINCT BRAND FROM CARS';
@@ -180,7 +157,7 @@ exports.loadBrands = function () {
 }
 
 
-//funzione per caricare le varie categorie
+//Funzione per caricare le varie categorie
 exports.loadCategories = function () {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT DISTINCT category FROM CARS ORDER BY category ';
@@ -189,7 +166,7 @@ exports.loadCategories = function () {
         reject(err);
         return;
       }
-      if (rows.length === 0) {            //FORSE DA TOGLIERE
+      if (rows.length === 0) {            
         reject(null);
         console.log('ritornano 0 righe!');
         return;

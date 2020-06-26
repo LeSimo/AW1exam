@@ -29,9 +29,6 @@
 - GET `/api/categories`
   - Parametri della richiesta: nessuno
   - Parametri della risposta: lista delle categorie nel db 
-- GET `/api/user`
-  - Parametri della richiesta: id e name dell'utente da identificare
-  - Parametri della risposta: oggetto user 
 - GET `/api/rentals/:id`
   - Parametri della richiesta: id dell'utente
   - Parametri della risposta: lista delle auto noleggiate dall'utente fornito
@@ -78,4 +75,4 @@
 * user2@mail.com, user2
 * user3@mail.com, user3 
 * user4@mail.com, user4
-* user5@mail.com, user5 (frequent customer)
+* user5@mail.com, user5 

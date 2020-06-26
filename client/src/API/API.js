@@ -1,21 +1,7 @@
-
 const Rent = require('./rent')
 const Car = require('./car')
 const baseURL = '/api';
 
-
-
-async function isAuthenticated() {
-    let url = '/user';
-    const response = await fetch(baseURL + url);
-    const userJson = await response.json();
-    if (response.ok)
-        return userJson;
-    else {
-        let err = { status: response.status, errObj: userJson };
-        throw err;      //An object with the error coming from the server 
-    }
-}
 
 async function getCars() {
     let url = '/cars';
@@ -42,15 +28,6 @@ async function getCategories() {
 
 }
 
-/* Not usefull during development
-async function getCarById(carId){
-    let url = '/cars/'+carId;
-    const response = await fetch(baseURL+url);
-    const carJson = await response.json();
-    if(response.ok)
-        return carJson;
-}
-*/
 
 async function getRentals(userID) {
     let url = '/rentals/' + userID;
@@ -188,5 +165,5 @@ async function stub(card, cost) {
 }
 
 //API to export
-const API = { isAuthenticated, getBrands, getCars, getCategories, getRentals, addRent, deleteRent, userLogin, userLogout, availableCars, stub };
+const API = {getBrands, getCars, getCategories, getRentals, addRent, deleteRent, userLogin, userLogout, availableCars, stub };
 export default API;
